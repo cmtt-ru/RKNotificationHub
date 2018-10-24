@@ -55,6 +55,7 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
 }
 
 @synthesize hubView;
+@synthesize font = _font;
 
 #pragma mark - SETUP
 
@@ -64,6 +65,8 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
     if (!self) return nil;
     
     [self setView:view andCount:0];
+    
+    self.font = [UIFont systemFontOfSize:(view.frame.size.width / 2.0) weight:UIFontWeightMedium];
     
     return self;
 }
@@ -99,7 +102,7 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
     countLabel.textColor = [UIColor whiteColor];
     countLabel.backgroundColor = [UIColor clearColor];
     
-    [self setCircleAtFrame:CGRectMake(frame.size.width- (RKNotificationHubDefaultDiameter*2/3), -RKNotificationHubDefaultDiameter/3, RKNotificationHubDefaultDiameter, RKNotificationHubDefaultDiameter)];
+    [self setCircleAtFrame:[self defaultCircleFrameFromRect:frame]];
     
     [view addSubview:redCircle];
     [view addSubview:countLabel];
@@ -118,7 +121,10 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
     initialFrame = frame;
     countLabel.frame = redCircle.frame;
     redCircle.layer.cornerRadius = frame.size.height/2;
-    [countLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:frame.size.width/2]];
+    
+    UIFont *updatedFont = [UIFont fontWithName:_font.fontName size:frame.size.width/2];
+    
+    [countLabel setFont:updatedFont];
     [self expandToFitLargerDigits];
 }
 
@@ -209,14 +215,12 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
 }
 
 //%% set the font of the label
-- (void)setCountLabelFont:(UIFont *)font
-{
-    [countLabel setFont:font];
+- (void)setFont:(UIFont *)font {
+    _font = [UIFont fontWithName:font.fontName size:baseFrame.size.width/2];
 }
 
-- (UIFont *)countLabelFont
-{
-    return countLabel.font;
+- (UIFont *)font {
+    return _font;
 }
 
 #pragma mark - ANIMATION
@@ -356,6 +360,10 @@ static CGFloat const kBumpTimeSeconds2 = 0.1;
 #pragma mark - HELPERS
 
 //%%% changes the Y origin of the notification circle
+- (CGRect)defaultCircleFrameFromRect:(CGRect)rect {
+    return CGRectMake(rect.size.width- (RKNotificationHubDefaultDiameter*2/3), -RKNotificationHubDefaultDiameter/3, RKNotificationHubDefaultDiameter, RKNotificationHubDefaultDiameter);
+}
+
 - (void)bumpCenterY:(float)yVal
 {
     CGPoint center = redCircle.center;
